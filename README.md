@@ -2,7 +2,7 @@
  
  **Part A: Kubernetes Deployment -** This section focuses on deploying a Flask-based web application in a Kubernetes cluster. It includes writing Kubernetes manifests for Deployments, Services, and Ingress with TLS-enabled SSL. Additionally, it ensures auto-scaling based on CPU and memory usage.
  
-** Part B: CI/CD Pipeline Automation -** This section sets up a GitLab CI/CD pipeline to automate the deployment process. The pipeline builds and pushes a Docker image to a container registry and deploys the updated application to Kubernetes. Additionally, it includes Helm charts for managing Kubernetes configurations efficiently.
+**Part B: CI/CD Pipeline Automation - **This section sets up a GitLab CI/CD pipeline to automate the deployment process. The pipeline builds and pushes a Docker image to a container registry and deploys the updated application to Kubernetes. Additionally, it includes Helm charts for managing Kubernetes configurations efficiently.
 
  **Server Setup & Deployment (Manual + Automation)**
  
