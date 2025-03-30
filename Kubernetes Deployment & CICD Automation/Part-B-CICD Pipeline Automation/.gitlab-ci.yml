@@ -1,0 +1,31 @@
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE_NAME: your-dockerhub-username/flask-app
+  IMAGE_TAG: latest
+  KUBE_NAMESPACE: default
+  HELM_RELEASE_NAME: flask-app
+
+before_script:
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+
+build:
+  stage: build
+  script:
+    - docker build -t $IMAGE_NAME:$CI_COMMIT_SHA .
+    - docker tag $IMAGE_NAME:$CI_COMMIT_SHA $IMAGE_NAME:$IMAGE_TAG
+    - docker push $IMAGE_NAME:$CI_COMMIT_SHA
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+
+deploy:
+  stage: deploy
+  only:
+    - main
+  script:
+    - kubectl config set-cluster my-cluster --server=$KUBE_SERVER --insecure-skip-tls-verify=true
+    - kubectl config set-credentials gitlab-ci --token=$KUBE_TOKEN
+    - kubectl config set-context my-cluster --cluster=my-cluster --user=gitlab-ci --namespace=$KUBE_NAMESPACE
+    - kubectl config use-context my-cluster
+    - helm upgrade --install $HELM_RELEASE_NAME helm-chart/ --set image.tag=$CI_COMMIT_SHA
