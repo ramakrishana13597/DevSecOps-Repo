@@ -1,16 +1,131 @@
 {
-  "version": "2.4.1",
   "summary": {
-    "title": "New Threat Model",
-    "owner": "",
-    "description": "kafka-threat-model",
-    "id": 0
+    "title": "Apache Kafka Threat Model",
+    "owner": "YourTeamName",
+    "description": "Threat model for a typical Apache Kafka deployment using STRIDE methodology.",
+    "id": "kafka-threat-model",
+    "version": "1.0"
   },
   "detail": {
-    "contributors": [],
-    "diagrams": [],
-    "diagramTop": 0,
-    "reviewer": "",
-    "threatTop": 0
+    "diagrams": [
+      {
+        "title": "Kafka Architecture Overview",
+        "diagramType": "STRIDE",
+        "nodes": [
+          {
+            "id": "producer",
+            "name": "Producer",
+            "type": "ExternalActor",
+            "description": "External entity sending messages to Kafka"
+          },
+          {
+            "id": "broker",
+            "name": "Kafka Broker",
+            "type": "Process",
+            "description": "Core Kafka component handling topic data and replication"
+          },
+          {
+            "id": "consumer",
+            "name": "Consumer",
+            "type": "ExternalActor",
+            "description": "Reads messages from Kafka topics"
+          },
+          {
+            "id": "zookeeper",
+            "name": "ZooKeeper / KRaft",
+            "type": "Process",
+            "description": "Cluster coordination service"
+          },
+          {
+            "id": "rest_api",
+            "name": "Kafka REST Endpoint",
+            "type": "Process",
+            "description": "API layer for Kafka Connect, Schema Registry, etc."
+          },
+          {
+            "id": "log_store",
+            "name": "Log Storage",
+            "type": "DataStore",
+            "description": "Kafka’s durable append-only log"
+          }
+        ],
+        "flows": [
+          {
+            "source": "producer",
+            "target": "broker",
+            "description": "Send data to topic",
+            "protocol": "Kafka over TLS"
+          },
+          {
+            "source": "broker",
+            "target": "log_store",
+            "description": "Write message to log",
+            "protocol": "Disk Write"
+          },
+          {
+            "source": "consumer",
+            "target": "broker",
+            "description": "Consume messages from topic",
+            "protocol": "Kafka over TLS"
+          },
+          {
+            "source": "broker",
+            "target": "zookeeper",
+            "description": "Coordination and metadata sync",
+            "protocol": "ZK or Raft protocol"
+          },
+          {
+            "source": "rest_api",
+            "target": "broker",
+            "description": "Admin operations and config changes",
+            "protocol": "REST API"
+          }
+        ],
+        "threats": [
+          {
+            "id": "T1",
+            "title": "Spoofed Producer",
+            "description": "A malicious actor pretends to be a legitimate producer",
+            "type": "Spoofing",
+            "mitigations": ["Use mutual TLS", "Enable SASL SCRAM or OAUTHBEARER"]
+          },
+          {
+            "id": "T2",
+            "title": "Topic Tampering",
+            "description": "Modification of messages in a topic",
+            "type": "Tampering",
+            "mitigations": ["Enable TLS", "Use append-only logs", "Audit logging"]
+          },
+          {
+            "id": "T3",
+            "title": "Data Exfiltration",
+            "description": "Unauthorized consumer reads sensitive messages",
+            "type": "Information Disclosure",
+            "mitigations": ["Use ACLs", "Encrypt data at rest", "Use network segmentation"]
+          },
+          {
+            "id": "T4",
+            "title": "DoS via Message Flooding",
+            "description": "Overwhelming a topic or broker with messages",
+            "type": "Denial of Service",
+            "mitigations": ["Set quotas", "Rate limit producers", "Use topic retention policies"]
+          },
+          {
+            "id": "T5",
+            "title": "Privilege Escalation via REST API",
+            "description": "Misconfigured REST endpoint allowing unauthorized actions",
+            "type": "Elevation of Privilege",
+            "mitigations": ["Secure REST API", "Enforce RBAC", "Audit config changes"]
+          },
+          {
+            "id": "T6",
+            "title": "MITM on Broker-Consumer Link",
+            "description": "Intercepting unencrypted traffic",
+            "type": "Information Disclosure",
+            "mitigations": ["Use TLS", "Verify certificates"]
+          }
+        ]
+      }
+    ]
   }
 }
